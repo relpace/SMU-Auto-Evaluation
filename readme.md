@@ -8,4 +8,8 @@ pycharm-Python软件包-添加软件包-从磁盘
 #### 2.使用pip命令安装
     pip install muggle-ocr-1.0.3.tar.gz
 ### 你也可以使用第三方OCR API（如百度云等）或直接手动输入验证码
-    
+### 请在脚本同一目录下新建config.ini配置文件
+#### 配置文件格式：
+    [login]
+    account=[你的账号]
+    password=[你的密码]
