@@ -10,6 +10,8 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from PIL import Image
 from bs4 import BeautifulSoup
+import requests
+import random
 
 captcha_url = "http://zhjw.smu.edu.cn/yzm?d="
 login_url = "http://zhjw.smu.edu.cn/new/login"
@@ -29,7 +31,7 @@ logging.basicConfig(
     filemode='w',
     format='%(asctime)s | %(levelname)s:  %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO,)
+    level=logging.INFO, )
 
 
 # 加密密码
@@ -90,9 +92,6 @@ def test(session):
     print(response.url)
 
 
-import requests
-
-
 def evaluate_course(session, teadm, dgksdm, ktpj):
     eval_url = f"http://zhjw.smu.edu.cn/new/student/ktpj/showXsktpjwj.page?pjlxdm=6&teadm={teadm}&dgksdm={dgksdm}&wjdm={ktpj}"
     # 访问评价页面
@@ -105,11 +104,19 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
             data = {match[0]: match[1] for match in matches}
             print(data['teaxm'], data['kcrwdm'], data['kcptdm'], data['kcdm'], data['pjlxdm'])
     save_url = "http://zhjw.smu.edu.cn/new/student/ktpj/savePj"
-
     questions = soup.find_all('div', class_='question')
     data_list = []
     count = 0
+    combinations = [[2, 2, 0], [1, 2, 1], [0, 4, 0], [1, 3, 0]]  # [25分选项个数，20分选项个数，15分选项个数]
+    combination = combinations[random.randint(0, 3)]
+    option = [-1, -2, -3]
+    scores = [25, 20, 15]
+    dtjgs = ['★★★★★', '★★★★', '★★★']
     for question in questions:
+        val = random.randint(0, 2)
+        while not combination[val]:
+            val = random.randint(0, 2)
+        combination[val] -= 1
         txdm = int(question['data-txdm'])
         zbdm = question['data-zbdm']
         zbmc = question.find('h3').get_text(strip=True).replace("\n", "").replace("\t", "")
@@ -118,9 +125,9 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
             # 处理有评分选项的问题
             raty_div = question.find('div', class_='raty')
             options = json.loads(raty_div['data-wtxm'])
-            zbxmdm = options[-2]['zbxmdm']  # 比较满意
-            fz = 20
-            dtjg = "★★★★"
+            zbxmdm = options[option[val]]['zbxmdm']  # 比较满意
+            fz = scores[val]
+            dtjg = dtjgs[val]
         elif question.find('input', type='radio') and txdm != 3:
             # 处理选择题，例如是/否的单选题
             radio_inputs = question.find_all('input', type='radio')
