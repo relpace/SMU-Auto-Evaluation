@@ -108,11 +108,12 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
     data_list = []
     count = 0
     combinations = [[2, 2, 0], [1, 2, 1], [0, 4, 0], [1, 3, 0]]  # [25分选项个数，20分选项个数，15分选项个数]
-    combination = combinations[random.randint(0, 3)]
     option = [-1, -2, -3]
     scores = [25, 20, 15]
     dtjgs = ['★★★★★', '★★★★', '★★★']
+    score_total = 0
     for question in questions:
+        combination = combinations[random.randint(0, 3)]
         val = random.randint(0, 2)
         while not combination[val]:
             val = random.randint(0, 2)
@@ -128,6 +129,7 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
             zbxmdm = options[option[val]]['zbxmdm']  # 比较满意
             fz = scores[val]
             dtjg = dtjgs[val]
+            score_total += fz
         elif question.find('input', type='radio') and txdm != 3:
             # 处理选择题，例如是/否的单选题
             radio_inputs = question.find_all('input', type='radio')
@@ -162,7 +164,7 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
         'kcdm': data['kcdm'],  # 课程代码
         'dgksdm': dgksdm,  # 大纲课时代码
         'jxhjdm': data['jxhjdm'],  # 教学环节代码
-        'wtpf': '80',  # 问卷评分
+        'wtpf': score_total,  # 问卷评分
         'pfsm': '',  # 评分说明
         # 根据实际页面中的题目结构构造dt字段
         'dt': json_output
