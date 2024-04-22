@@ -83,7 +83,7 @@ def login(account, password, captcha, session):
         print(response.url)
         get_courses(session)
     else:
-        logging.error(msg="登录失败，原因： " + response.text)
+        logging.error(msg="登录失败， " + response.text)
 
 
 def test(session):
