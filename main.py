@@ -13,15 +13,15 @@ from bs4 import BeautifulSoup
 import requests
 import random
 
-captcha_url = "http://zhjw.smu.edu.cn/yzm?d="
-login_url = "http://zhjw.smu.edu.cn/new/login"
+captcha_url = "https://zhjw.smu.edu.cn/yzm?d="
+login_url = "https://zhjw.smu.edu.cn/new/login"
 headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Encoding": "gzip, deflate",
     "Accept-Language": "zh-CN,zh;q=0.9",
     "Connection": "keep-alive",
     "Host": "zhjw.smu.edu.cn",
-    "Referer": "http://zhjw.smu.edu.cn/",
+    "Referer": "https://zhjw.smu.edu.cn/",
     "Upgrade-Insecure-Requests": "1",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 }
@@ -93,7 +93,7 @@ def test(session):
 
 
 def evaluate_course(session, teadm, dgksdm, ktpj):
-    eval_url = f"http://zhjw.smu.edu.cn/new/student/ktpj/showXsktpjwj.page?pjlxdm=6&teadm={teadm}&dgksdm={dgksdm}&wjdm={ktpj}"
+    eval_url = f"https://zhjw.smu.edu.cn/new/student/ktpj/showXsktpjwj.page?pjlxdm=6&teadm={teadm}&dgksdm={dgksdm}&wjdm={ktpj}"
     # 访问评价页面
     eval_response = session.get(eval_url, headers=headers, )
     soup = BeautifulSoup(eval_response.content, 'lxml')
@@ -103,7 +103,7 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
             matches = re.findall(r"(\w+):'([^']+)'", script.text)
             data = {match[0]: match[1] for match in matches}
             print(data['teaxm'], data['kcrwdm'], data['kcptdm'], data['kcdm'], data['pjlxdm'])
-    save_url = "http://zhjw.smu.edu.cn/new/student/ktpj/savePj"
+    save_url = "https://zhjw.smu.edu.cn/new/student/ktpj/savePj"
     questions = soup.find_all('div', class_='question')
     data_list = []
     count = 0
@@ -175,7 +175,7 @@ def evaluate_course(session, teadm, dgksdm, ktpj):
 
 def get_courses(session):
     # 获取课程信息
-    url = "http://zhjw.smu.edu.cn/new/student/ktpj/xsktpjData"
+    url = "https://zhjw.smu.edu.cn/new/student/ktpj/xsktpjData"
     data = {'jsrq': '',
             'page': 1,
             'rows': 20,
