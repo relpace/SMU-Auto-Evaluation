@@ -1,8 +1,6 @@
 # 南方医科大学自动评课脚本
 如题，实现南医教务课程自动评价。支持小范围的随机打分。
 # 使用方法
-    pip install -r requirements.txt
-    pip install muggle-ocr-1.0.3.tar.gz
 ## 对于一般Windows用户
 ># 1.环境配置
 >0. 安装Python
