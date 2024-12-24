@@ -22,7 +22,7 @@
 >     taskschd.msc
 >### 点击 操作 - 创建任务
 >触发器选项卡:
-> * 按预定计划-每天 时间任意
+> * 按预定计划-每天 时间最好选早一些
 >
 >操作选项卡:
 >* 程序或脚本：选择 脚本下载目录\SMU-Auto-Evaluation-Master\.venv\Scripts\python.exe
