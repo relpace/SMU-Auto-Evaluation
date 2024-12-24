@@ -14,8 +14,8 @@
 > 配置文件格式：
 >
 >     [login]
->     account=[你的账号]
->     password=[你的密码]
+>     account=你的账号
+>     password=你的密码
 ># 2.定时任务设置
 >Win+R 运行
 >
