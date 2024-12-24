@@ -25,7 +25,7 @@
 > * 按预定计划-每天 时间任意
 >
 >操作选项卡:
->* 程序或脚本：选择 你的目录\SMU-Auto-Evaluation-Master\.venv\Scripts\python.exe
+>* 程序或脚本：选择 脚本下载目录\SMU-Auto-Evaluation-Master\.venv\Scripts\python.exe
 >* 添加参数: main.py
 >* 起始于: 你的目录\SMU-Auto-Evaluation-Master
 >
