@@ -12,7 +12,7 @@ powershell -ExecutionPolicy ByPass -c "irm -useb https://pixi.sh/install.ps1 | i
 1. 下载解压项目文件： 项目主页 - 绿色Code按钮 - Download Zip 
 2. 打开解压后的文件夹，在空白处单击右键-在终端中打开，然后运行
 ```
-pixi init
+pixi install
 pixi run pip install ./muggle-ocr-1.0.3.tar.gz
 ```
 ## 3. 更改config.ini
