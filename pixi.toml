@@ -1,0 +1,19 @@
+[workspace]
+authors = ["relpace <evilinside0@protonmail.com>"]
+channels = ["conda-forge"]
+name = "autoeval"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.11.4.*"
+pillow = ">=11.1.0,<12"
+pycryptodome = ">=3.22.0,<4"
+requests = ">=2.32.3,<3"
+beautifulsoup4 = ">=4.13.3,<5"
+pip = ">=25.0.1,<26"
+
+[pypi-dependencies]
+tensorflow = "==2.17.0"
