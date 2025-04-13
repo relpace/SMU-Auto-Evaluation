@@ -22,7 +22,7 @@ pixi run pip install ./muggle-ocr-1.0.3.tar.gz
 account=你的账号
 password=你的密码
 ```
-至此环境配置已经完成，你可以在文件夹目录中终端运行`pixi run python main.py`测试程序是否正常运行
+**至此环境配置已经完成，你可以在文件夹目录中终端运行`pixi run python main.py`测试程序是否正常运行**
 # 定时任务设置
 Win+R 运行
 
@@ -34,7 +34,7 @@ Win+R 运行
 操作选项卡:
 * 程序或脚本：选择 下载目录\SMU-Auto-Evaluation-Master\.pixi\envs\default\python.exe
 * 添加参数: main.py
-* 起始于: 下载目录\SMU-Auto-Evaluation-Master
+* 起始于: 下载目录\SMU-Auto-Evaluation-Master（脚本所在目录）
 
 设置选项卡：
 * **勾选[如果过了计划开始时间，立即启动任务]**
