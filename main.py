@@ -1,20 +1,17 @@
 import configparser
 import json
 import logging
-import os
 import re
-import time
 from io import BytesIO
-import muggle_ocr
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
+import ddddocr
+from hashlib import md5
 from PIL import Image
 from bs4 import BeautifulSoup
 import requests
 import random
 
-captcha_url = "https://zhjw.smu.edu.cn/yzm?d="
-login_url = "https://zhjw.smu.edu.cn/new/login"
+captcha_url = "https://uis.smu.edu.cn/imageServlet.do"
+login_url = "https://uis.smu.edu.cn/login/login.do"
 headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-Encoding": "gzip, deflate",
@@ -34,67 +31,87 @@ logging.basicConfig(
     level=logging.INFO, )
 
 
-# 加密密码
-def encrypt_password(password, verifycode):
-    # 将验证码重复四次作为密钥
-    key = (verifycode * 4).encode('utf-8')
-    # AES要求key和data的长度必须是16的倍数
-    cipher = AES.new(key, AES.MODE_ECB)
-    # 加密密码
-    encrypted = cipher.encrypt(pad(password.encode('utf-8'), AES.block_size))
-    # 将加密后的密码转换为十六进制字符串
-    return encrypted.hex()
 
 
-# 获取验证码
 def get_captcha(session):
-    captcha_response = session.get(captcha_url + str(int(time.time() * 1000)), headers=headers)
+    headers_captcha = {
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Connection': 'keep-alive',
+        'Host': 'uis.smu.edu.cn',
+        'Referer': 'https://uis.smu.edu.cn/login.jsp?outLine=0',
+        'Sec-Fetch-Dest': 'image',
+        'Sec-Fetch-Mode': 'no-cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"'
+    }
+    captcha_response = session.get(captcha_url, headers=headers_captcha)
     img = Image.open(BytesIO(captcha_response.content))
-    temp_save_path = 'captcha.png'
-    img.save(temp_save_path)
-    print(f"验证码图片临时保存至: {temp_save_path}")
-    with open(r"captcha.png", "rb") as f:
-        img_bytes = f.read()
-    sdk = muggle_ocr.SDK(model_type=muggle_ocr.ModelType.Captcha)
-    text = sdk.predict(image_bytes=img_bytes)
-    temp_save_path = 'captcha.png'
-    if os.path.exists(temp_save_path):
-        os.remove(temp_save_path)
-        print(f"临时文件 {temp_save_path} 已删除")
-    return text
-    '''
-    img.show()
-    captcha = input("请输入验证码: ")
-    return captcha
-    '''
+    ocr = ddddocr.DdddOcr(beta=True)
+    result = ocr.classification(img)
+    return result
+
 
 
 # 登录
 def login(account, password, captcha, session):
-    encrypted_password = encrypt_password(password, captcha)
+    password_md5 = md5(password.encode()).hexdigest()
+    headers = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Connection': 'keep-alive',
+        'Content-Length': '234',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Host': 'uis.smu.edu.cn',
+        'Origin': 'https://uis.smu.edu.cn',
+        'Referer': 'https://uis.smu.edu.cn/login.jsp?redirect=https%3A%2F%2Fzhjw.smu.edu.cn%2Fnew%2FssoLogin',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        'X-KL-kis-Ajax-Request': 'Ajax_Request',
+        'X-Requested-With': 'XMLHttpRequest',
+        'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"'
+    }
     data = {
-        "account": account,
-        "pwd": encrypted_password,
-        "verifycode": captcha
+        "loginName": account,
+        "password": password_md5,
+        "randcodekey": captcha,
+        "locationBrowser": "谷歌浏览器[Chrome]",
+        "appid": "3550176",
+        "redirect": "https://zhjw.smu.edu.cn/new/ssoLogin",
+        "strength": 3
     }
     response = session.post(login_url, data=data, headers=headers)
     if response.status_code == 200 and "成功" in response.text:
         logging.info("登陆成功")
-        print(response.url)
-        get_courses(session)
+        resp_json = json.loads(response.text)
+        ticket = resp_json["ticket"]
+        return ticket
+
     else:
-        logging.error(msg="登录失败， " + response.text)
+        logging.error(msg="登录失败， " + response.text+" 验证码：" +captcha)
+        return "failed"
 
+def redirect_login(session, ticket):
+    url = "https://zhjw.smu.edu.cn/new/ssoLogin"
+    params = {
+        "ticket": ticket,
+    }
+    resp = session.get(url, headers=headers, params=params)
+    print(resp.status_code)
 
-def test(session):
-    response = session.get("http://zhjw.smu.edu.cn/new/welcome.page", headers=headers)
-    print(response.text)
-    print(response.url)
 
 
 def evaluate_course(session, teadm, dgksdm, ktpj):
     eval_url = f"https://zhjw.smu.edu.cn/new/student/ktpj/showXsktpjwj.page?pjlxdm=6&teadm={teadm}&dgksdm={dgksdm}&wjdm={ktpj}"
-    # 访问评价页面
     eval_response = session.get(eval_url, headers=headers, )
     soup = BeautifulSoup(eval_response.content, 'lxml')
     scripts = soup.find_all('script')
@@ -200,10 +217,15 @@ def main():
     config.read('config.ini')
     account = config.get('login', 'account')
     password = config.get('login', 'password')
-    session = requests.Session()
-    captcha = get_captcha(session)
-    login(account, password, captcha, session)
-
+    attempt = 5
+    for i in range(attempt):
+        session = requests.Session()
+        captcha = get_captcha(session)
+        ticket = login(account, password, captcha, session)
+        if ticket != "failed":
+            break
+    redirect_login(session, ticket)
+    get_courses(session)
 
 if __name__ == "__main__":
     main()
