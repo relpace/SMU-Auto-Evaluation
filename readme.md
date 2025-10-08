@@ -9,7 +9,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | more"
 ```
 或
 ```
-pipx install uv
+pip install uv
 ```
 执行完毕后，关闭终端窗口然后重新打开
 ## 2. 配置uv环境
